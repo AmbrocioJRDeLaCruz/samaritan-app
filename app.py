@@ -86,8 +86,24 @@ def case_detail(case_id):
     
   return render_template("case_detail.html", case=case)
 
+app.run(debug=True)
+
+@app.route("/cases/<int:case_id>/status", method=["POST"])
+def update_case_status(case_id):
+  """
+  Actualiza el estado de atención de un caso (Pendiente, En progreso, Completado).
+  """
+  new_status = request.form.get("status")
+  if new_status in ["pending", "in_progress", "complete"]:
+    with get_db() as conn:
+      conn.execute("UPDATE cases SET status = ? WHERE id = ?", (new_status, case_id))
+      flash("Estado del caso actualizado correctamente.", "success")
+  else:
+    flash("Estado inválido.", "error")
+    
+  return redirect(f"/cases/{case_id}")
+
 if __name__ == "__main__":
   with app.app_context():
     init_db()
     
-  app.run(debug=True)

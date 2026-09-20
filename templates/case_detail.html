@@ -1,12 +1,23 @@
 {% extends "layout.html" %}
 
-{% block title %}Cases - Samaritan{% endblock %}
+{% block title %}Caso #{{ case.id }} - Samaritan{% endblock %}
 
 {% block main %}
   <div class="row justify-content-center">
     <div class="col-12 col-lg-9">
       <div class="d-flex justify-content-between align items-center mb-3">
-        <a href="/" class="bi bi-arrow-left me-1">Volver al Panel</a>
+        <a href="/" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-arrow-left me-1"></i>Volver al Panel
+        </a>
+        <div>
+          {% if case.status == 'pending' %}
+            <span class="badge bg-warning text-dark fs-6 px-3 py-2">Estado: Pendiente</span>
+          {% elif case.status == 'in_progress' %}
+            <span class="badge bg-info text-dark fs-6 px-3 py-2">Estado: En progreso</span>
+          {% else %}
+            <span class="badge bg-success fs-6 px-3 py-2">Estado: Completado</span>
+          {% endif %}
+        </div>
       </div>
 
       <div class="card border-0 shadow-sm rounded-4 bg-white mb-4">
@@ -28,15 +39,15 @@
                   <i class="bi bi-people me-1"></i>Beneficiario / Familia
                 </h6>
 
-                <h5>{{ case.beneficiary_name }}</h5>
-                <p>
-                  {{ case.beneficiary_phone }}
+                <h5 class="fw-bold text-dark mb-2">{{ case.beneficiary_name }}</h5>
+                <p class="mb-1 text-muted small">
+                  <i class="bi bi-telephone me-2"></i>{{ case.beneficiary_phone or 'Sin teléfono'}}
                 </p>
-                <p>
-                  {{ case.beneficiary_location }}
+                <p class="mb-1 text-muted small">
+                  <i class="bi bi-geo-alt me-2"></i>{{ case.beneficiary_location or 'Sin dirección especificada'}}
                 </p>
-                <p>
-                  {{ case.beneficiary_household_size }}
+                <p class="mb-1 text-muted small">
+                  <i class="bi bi-house me-2"></i>{{ case.beneficiary_household_size or 1}} mienbros en el hogar
                 </p>
 
               </div>
@@ -55,6 +66,36 @@
                   </form>
               </div>
             </div>
+          </div>
+
+          <!-- Descripción del caso -->
+          <div class="mb-4">
+            <h6 class="fw-bold text-secondary text-uppercase small mb-2">Descripción de la Necesidad</h6>
+            <div class="p-3 rounded-3 bg-white border">
+              <p class="mb-0 text-secondary" style="white-space: pre-line;">
+                {{ case.description if case.description else 'No se ingresaron detalles adicionales.' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Actualizar Estado del Caso -->
+          <div class="border-top pt-4">
+            <h6 class="fw-bold text-dark mb-3"><i class="bi bi-gear me-1"></i>Actualizar Estado de Caso</h6>
+            <form action="/cases/{{ case.id }}/status" method="post" class="row g-2 align-items-center">
+              <div class="col-auto">
+                <select name="status" class="form-select form-select-sm">
+                  <option value="pending" {% if case.status == 'pending' %}selected{% endif %}>Pendiente</option>
+                  <option value="in_progress" {% if case.status == 'in_progress' %}selected{% endif %}>En Progreso</option>
+                  <option value="complete" {% if case.status == 'complete' %}selected{% endif %}>Completado</option>
+                </select>
+              </div>
+              <div class="col-auto">
+                <button type="submit" class="btn btn-primary btn-sm fw-semibold">
+                  Guardar Estado
+                </button>
+              </div>
+
+            </form>
           </div>
         </div>
       </div>
