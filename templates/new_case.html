@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block title %}
+  New Cases
+{% endblock %}
+
+{% block main %}
+  <div class="container">
+    <h1>Registrar Caso de Ayuda</h1>
+
+    <div>
+      <form action="/cases/new" method="post">
+        <div class="row g-4">
+          <div class="col-12">
+            <label for="beneficiary" class="form-label fw-semibold">Beneficiario / Familia</label>
+            <select class="form-select" id="beneficiary_id" name="beneficiary_id" required>
+              <option value="" disabled {% if not selected_beneficiary_id %}selected{% endif %}>Selecciona una familia o persona...</option>
+              {% for b in beneficiaries %}
+                  <option value="{{ b['id'] }}" {% if selected_beneficiary_id and selected_beneficiary_id|int == b['id'] %}selected{% endif %}>
+                      {{ b["name"] }} {% if b["location"] %}({{ b["location"] }}){% endif %}
+                  </option>
+              {% endfor %}
+            </select>
+            <div class="form-text small">¿No está en la lista? <a href="/beneficiaries">Registra primero al beneficiario</a>.</div>
+          </div>
+    
+          <div class="col-12">
+            <label for="case_type" class="form-label fw-semibold">Título del Caso o Necesidad</label>
+            <input type="text" class="form-control" name="case_type" placeholder="Ej. Canasta de alimentos no perecederos" >
+          </div>
+    
+          <div class="col-12">
+            <label for="category" class="form-label fw-semibold">Categoría o Ayuda</label>
+            <select class="form-select" id="category" name="category" required>
+              <option value="Alimentos">Alimentos y Nutrición</option>
+              <option value="Salud">Salud y Medicamentos</option>
+              <option value="Vivienda">Vivienda y Reparaciones</option>
+              <option value="Ropa">Ropa y Calzado</option>
+              <option value="Educación">Educación y Útiles Escolares</option>
+              <option value="Económica">Apoyo Económico de Emergencia</option>
+              <option value="Otro">Otro Tipo de Apoyo</option>
+            </select>
+          </div>
+    
+          <div class="col-12">
+            <label for="description" class="form-label fw-semibold">Descripción Detallada</label>
+            <textarea name="description" class="form-control" placeholder="Ej. Explica la situación, urgencia o recursos específicos necesarios..."></textarea>
+          </div>
+    
+          <div class="d-flex justify-content-end gap-2">
+            <a href="/" class="btn btn-outline-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary px-4 fw-semibold">Guardar Beneficiario</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
