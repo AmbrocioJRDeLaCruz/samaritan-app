@@ -12,7 +12,57 @@ app.teardown_appcontext(close_db)
 
 @app.route("/")
 def index():
-  return render_template("layout.html")
+  """
+  Panel Principal (Dashboard)
+  Muestra métricas generales y el listado de casos de ayuda comunitarias.
+  """
+  with get_db() as conn:
+    total_beneficiaries = conn.execute("SELECT COUNT(*) FROM beneficiaries").fetchone()[0]
+    total_cases = conn.execute("SELECT COUNT(*) FROM cases").fetchone()[0]
+    pending_cases = conn.execute("SELECT COUNT(*) FROM cases WHERE status = 'pending'").fetchone()[0]
+    in_progress_cases = conn.execute("SELECT COUNT(*) FROM cases WHERE status = 'in_progress'").fetchone()[0]
+    completed_cases = conn.execute("SELECT COUNT(*) FROM cases WHERE status = 'complete'").fetchone()[0]
+    
+    status_filter = request.args.get("status")
+    search_query = request.args.get("q")
+
+    base_query ="""
+      SELECT c.id, c.case_type, c.category, c.description, c.status, c.created_at,
+      b.name AS beneficiary_name
+      FROM cases c 
+      JOIN beneficiaries b ON c.beneficiary_id = b.id
+    """
+    
+    where_clauses = []
+    params = []
+    
+    if status_filter:
+      where_clauses.append("c.status = ?")
+      params.append(status_filter)
+    if search_query:
+      where_clauses.append("(c.description LIKE ? OR b.name LIKE ?)")
+      params.extend([f"%{search_query}%", f"%{search_query}%"])
+    
+    if where_clauses:
+      base_query += " WHERE " + " AND ".join(where_clauses)
+    
+    base_query += " ORDER BY c.created_at DESC;"
+    
+    with get_db() as conn:
+      cases = conn.execute(base_query, params).fetchall()
+  
+  return render_template(
+    "index.html",
+    total_beneficiaries=total_beneficiaries,
+    total_cases=total_cases,
+    pending_cases=pending_cases,
+    in_progress_cases=in_progress_cases,
+    completed_cases=completed_cases,
+    cases=cases
+  )
+    
+  
+  return render_template("index.html")
 
 @app.route("/beneficiaries", methods=["GET", "POST"])
 def beneficiaries():
