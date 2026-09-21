@@ -2,7 +2,6 @@ import sqlite3
 from datetime import datetime
 from functools import wraps
 
-import click
 from flask import current_app, g, session, redirect
 
 def get_db():

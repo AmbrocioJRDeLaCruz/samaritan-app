@@ -38,10 +38,13 @@ def index():
     search_query = request.args.get("q")
 
     base_query ="""
-      SELECT c.id, c.case_type, c.category, c.description, c.status, c.created_at,
-      b.name AS beneficiary_name
+      SELECT 
+        c.id, c.case_type, c.category, c.description, c.status, c.created_at,
+        b.name AS beneficiary_name,
+        u.name AS volunteer_name
       FROM cases c 
       JOIN beneficiaries b ON c.beneficiary_id = b.id
+      LEFT JOIN users u ON c.volunteer_id = u.id
     """
     
     where_clauses = []
@@ -105,12 +108,12 @@ def register():
         return redirect("/register")
       
       conn.execute(
-        "INSERT INTO users (name, email, hash) VALUES (?, ?, ?)",
+        "INSERT INTO users (name, email, hash, role) VALUES (?, ?, ?, 'volunteer')",
         (name, email, hashed_password)
       )
       conn.commit()
       
-      return redirect("/login.html")
+      return redirect("/login")
     
   return render_template("register.html")
 
@@ -215,9 +218,12 @@ def case_detail(case_id):
       SELECT 
         c.id, c.case_type, c.category, c.status, c.description, c.created_at ,
         b.id AS beneficiary_id, b.name AS beneficiary_name, b.phone AS beneficiary_phone,
-        b.location AS beneficiary_location, b.household_size
+        b.location AS beneficiary_location, b.household_size,
+        u.id AS volunteer_id, u.name As volunteer_name, u.email AS volunteer_email
       FROM cases c 
-      JOIN beneficiaries b ON c.beneficiary_id = b.id WHERE c.id = ?;
+      JOIN beneficiaries b ON c.beneficiary_id = b.id
+      LEFT JOIN users u ON c.volunteer_id = u.id
+      WHERE c.id = ?;
       """,(case_id,)).fetchone()
     
     if case is None:
@@ -226,6 +232,18 @@ def case_detail(case_id):
     
   return render_template("case_detail.html", case=case)
 
+@app.route("/cases/<int:case_id>/claim", methods=["POST"])
+def claim_case(case_id):
+  """
+  Permite a un voluntario reclamar un caso para su atención.
+  """
+  user_id = session.get("user_id")
+  with get_db() as conn:
+    conn.execute("UPDATE cases SET volunteer_id = ?, status = 'in_progress' WHERE id = ?;", (user_id, case_id,))
+    conn.commit()
+    flash("Has reclamado el caso exitosamente.", "success")
+    
+  return redirect(f"/cases/{case_id}")
 
 @app.route("/cases/<int:case_id>/status", methods=["POST"])
 @login_required

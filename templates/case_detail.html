@@ -52,18 +52,25 @@
 
               </div>
             </div>
+            <!-- Voluntario Asignado -->
             <div class="col-12 col-md-6">
               <div class="p-3 bg-light rounded-3 h-100 border">
                 <h6 class="fw-bold text-secondary text-uppercase small mb-3">
                   <i class="bi bi-people-check me-1"></i>Voluntario a Cargo
                 </h6>
-                
-                  <p class="text-muted fst-italic mb-3">Este caso aún no tiene un voluntario asignado.</p>
-                  <form action="/cases/{{ case['id'] }}/claim" method="post">
-                      <button type="submit" class="btn btn-outline-primary btn-sm fw-semibold">
-                          <i class="bi bi-hand-thumbs-up me-1"></i>Tomar este caso como voluntario
-                      </button>
-                  </form>
+                  {% if case.volunteer_name %}
+                    <h5 class="fw-bold text-dark mb-2">{{ case.volunteer_name }}</h5>
+                    <p class="mb-1 text-muted small">
+                      <i class="bi bi-email me-2"></i>{{ case.volunteer_email}}
+                    </p>
+                  {% else %}
+                    <p class="text-muted fst-italic mb-3">Este caso aún no tiene un voluntario asignado.</p>
+                    <form action="/cases/{{ case['id'] }}/claim" method="post">
+                        <button type="submit" class="btn btn-outline-primary btn-sm fw-semibold">
+                            <i class="bi bi-hand-thumbs-up me-1"></i>Tomar este caso como voluntario
+                        </button>
+                    </form>
+                  {% endif %}
               </div>
             </div>
           </div>
