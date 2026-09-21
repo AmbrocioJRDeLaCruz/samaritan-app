@@ -140,6 +140,15 @@ def login():
   
   return render_template("login.html")
 
+@app.route("/logout", methods=["POST"])
+def logout():
+  """
+    Cerrar la sesión del voluntario actual
+  """
+  session.clear()
+  flash("Has cerrado sesión exitosamente.", "success")
+  return redirect("/login")
+
 @app.route("/beneficiaries", methods=["GET", "POST"])
 def beneficiaries():
   if request.method == "POST":
