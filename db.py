@@ -1,8 +1,9 @@
 import sqlite3
 from datetime import datetime
+from functools import wraps
 
 import click
-from flask import current_app, g
+from flask import current_app, g, session, redirect
 
 def get_db():
   if "db" not in g:
@@ -28,3 +29,15 @@ def init_db():
 sqlite3.register_converter(
   "timestamp", lambda v: datetime.fromisoformat(v.decode())
 )
+
+def login_required(f):
+  """
+    Decorador para proteger rutas que requieren autenticación.
+    Si el usuario no ha iniciado sesión en session["user_id"], redirige a /login.
+  """
+  @wraps(f)
+  def wrapper(*args, **kwargs):
+    if session.get("user_id") is None:
+      return redirect("/login")
+    return f(*args, **kwargs)
+  return wrapper

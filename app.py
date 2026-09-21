@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, request, redirect, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from db import get_db, init_db, close_db
+from db import get_db, init_db, close_db, login_required
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "samaritan-cs50-secret-dev-key")
@@ -22,6 +22,7 @@ def after_request(response):
     return response
   
 @app.route("/")
+@login_required
 def index():
   """
   Panel Principal (Dashboard)
@@ -150,6 +151,7 @@ def logout():
   return redirect("/login")
 
 @app.route("/beneficiaries", methods=["GET", "POST"])
+@login_required
 def beneficiaries():
   if request.method == "POST":
     name = request.form.get("name")
@@ -178,6 +180,7 @@ def beneficiaries():
   return render_template("beneficiaries.html", beneficiaries=all_beneficiaries)
 
 @app.route("/cases/new", methods=["GET", "POST"])
+@login_required
 def new_case():
   with get_db() as conn:
     if request.method == "POST":
@@ -205,6 +208,7 @@ def new_case():
   return render_template("new_case.html", beneficiaries=beneficiaries_list, selected_beneficiary_id=selected_id)
 
 @app.route("/cases/<int:case_id>")
+@login_required
 def case_detail(case_id):
   with get_db() as conn:
     case = conn.execute("""
@@ -224,6 +228,7 @@ def case_detail(case_id):
 app.run(debug=True)
 
 @app.route("/cases/<int:case_id>/status", method=["POST"])
+@login_required
 def update_case_status(case_id):
   """
   Actualiza el estado de atención de un caso (Pendiente, En progreso, Completado).
