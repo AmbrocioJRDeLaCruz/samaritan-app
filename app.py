@@ -113,6 +113,33 @@ def register():
     
   return render_template("register.html")
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+  """Inicio de sesión para voluntarios registrados
+  """
+  if request.method == "POST":
+    email = request.form.get("email").strip().lower()
+    password = request.form.get("password")
+    
+    if not email or not password:
+      flash("Correo electrónico y contraseña son obligatorios.", "error")
+      return redirect("/login")
+    
+    with get_db() as conn:
+      user = conn.execute("SELECT id, name, hash FROM users WHERE email = ?", (email,)).fetchone()
+      
+      if user is None or not check_password_hash(user["hash"], password):
+        flash("Correo electrónico o contraseña incorrectos.", "error")
+        return redirect("/login")
+      
+      session.clear()
+      session["user_id"] = user["id"]
+      session["user_name"] = user["name"]
+      
+      return redirect("/")
+  
+  return render_template("login.html")
+
 @app.route("/beneficiaries", methods=["GET", "POST"])
 def beneficiaries():
   if request.method == "POST":
