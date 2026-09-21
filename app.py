@@ -29,11 +29,10 @@ def index():
   Muestra métricas generales y el listado de casos de ayuda comunitarias.
   """
   with get_db() as conn:
-    total_beneficiaries = conn.execute("SELECT COUNT(*) FROM beneficiaries").fetchone()[0]
-    total_cases = conn.execute("SELECT COUNT(*) FROM cases").fetchone()[0]
-    pending_cases = conn.execute("SELECT COUNT(*) FROM cases WHERE status = 'pending'").fetchone()[0]
-    in_progress_cases = conn.execute("SELECT COUNT(*) FROM cases WHERE status = 'in_progress'").fetchone()[0]
-    completed_cases = conn.execute("SELECT COUNT(*) FROM cases WHERE status = 'complete'").fetchone()[0]
+    total_beneficiaries = conn.execute("SELECT COUNT(*) FROM beneficiaries;").fetchone()[0]
+    pending_cases = conn.execute("SELECT COUNT(*) FROM cases WHERE status = 'pending';").fetchone()[0]
+    in_progress_cases = conn.execute("SELECT COUNT(*) FROM cases WHERE status = 'in_progress';").fetchone()[0]
+    completed_cases = conn.execute("SELECT COUNT(*) FROM cases WHERE status = 'complete';").fetchone()[0]
     
     status_filter = request.args.get("status")
     search_query = request.args.get("q")
@@ -66,11 +65,12 @@ def index():
   return render_template(
     "index.html",
     total_beneficiaries=total_beneficiaries,
-    total_cases=total_cases,
     pending_cases=pending_cases,
     in_progress_cases=in_progress_cases,
     completed_cases=completed_cases,
-    cases=cases
+    cases=cases,
+    selected_status=status_filter,
+    search_query=search_query
   )
     
 @app.route("/register", methods=["GET", "POST"])
@@ -194,8 +194,8 @@ def new_case():
         return redirect("/cases/new")
       
       conn.execute(
-        "INSERT INTO cases (beneficiary_id, case_type, category, description) VALUES (?, ?, ?, ?)",
-        (beneficiary_id, case_type, category, description)
+        "INSERT INTO cases (beneficiary_id, case_type, category, description, status) VALUES (?, ?, ?, ?, 'pending')",
+        (beneficiary_id, case_type, category, description if description else None)
       )
       conn.commit()
       
@@ -213,10 +213,11 @@ def case_detail(case_id):
   with get_db() as conn:
     case = conn.execute("""
       SELECT 
-        c.id, c.case_type, c.category, c.description, 
+        c.id, c.case_type, c.category, c.status, c.description, c.created_at ,
         b.id AS beneficiary_id, b.name AS beneficiary_name, b.phone AS beneficiary_phone,
         b.location AS beneficiary_location, b.household_size
-      FROM cases c JOIN beneficiaries b ON c.beneficiary_id = b.id WHERE c.id = ?;
+      FROM cases c 
+      JOIN beneficiaries b ON c.beneficiary_id = b.id WHERE c.id = ?;
       """,(case_id,)).fetchone()
     
     if case is None:
@@ -225,9 +226,8 @@ def case_detail(case_id):
     
   return render_template("case_detail.html", case=case)
 
-app.run(debug=True)
 
-@app.route("/cases/<int:case_id>/status", method=["POST"])
+@app.route("/cases/<int:case_id>/status", methods=["POST"])
 @login_required
 def update_case_status(case_id):
   """
@@ -236,14 +236,16 @@ def update_case_status(case_id):
   new_status = request.form.get("status")
   if new_status in ["pending", "in_progress", "complete"]:
     with get_db() as conn:
-      conn.execute("UPDATE cases SET status = ? WHERE id = ?", (new_status, case_id))
+      conn.execute("UPDATE cases SET status = ? WHERE id = ?;", (new_status, case_id))
       flash("Estado del caso actualizado correctamente.", "success")
+      print("Se ejecuto el query")
   else:
-    flash("Estado inválido.", "error")
+    flash("Estado inválido.", "warning")
     
   return redirect(f"/cases/{case_id}")
 
 if __name__ == "__main__":
+  app.run(debug=True)
   with app.app_context():
     init_db()
     
