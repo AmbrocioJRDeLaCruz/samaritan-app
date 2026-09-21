@@ -1,5 +1,6 @@
 import os
-from flask import Flask, render_template, request, redirect, flash
+from flask import Flask, render_template, request, redirect, flash, session
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from db import get_db, init_db, close_db
 
@@ -10,6 +11,16 @@ app.config["DATABASE"] = "samaritan.db"
 
 app.teardown_appcontext(close_db)
 
+@app.after_request
+def after_request(response):
+    """
+    Asegura que las respuestas del servidor no sean cacheadas por el navegador.
+    """
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Expires"] = 0
+    response.headers["Pragma"] = "no-cache"
+    return response
+  
 @app.route("/")
 def index():
   """
@@ -61,8 +72,46 @@ def index():
     cases=cases
   )
     
-  
-  return render_template("index.html")
+@app.route("/register", methods=["GET", "POST"])
+def register():
+  """Registro de nuevos voluntarios en la plataforma
+  """
+  if request.method == "POST":
+    name = request.form.get("name").strip()
+    email = request.form.get("email").strip().lower()
+    password = request.form.get("password")
+    confirm_password = request.form.get("confirm_password")
+    
+    if not name:
+      flash("El nombre es obligatorio.", "error")
+      return redirect("/register")
+    if not email:
+      flash("El correo electrónico es obligatorio.", "error")
+      return redirect("/register")
+    if not password:
+      flash("La contraseña es obligatoria.", "error")
+      return redirect("/register")
+    if password != confirm_password:
+      flash("Las contraseñas no coinciden.", "error")
+      return redirect("/register")
+    
+    hashed_password = generate_password_hash(password)
+    
+    with get_db() as conn:
+      existing_user = conn.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()
+      if existing_user:
+        flash("El correo electrónico ya está registrado.", "error")
+        return redirect("/register")
+      
+      conn.execute(
+        "INSERT INTO users (name, email, hash) VALUES (?, ?, ?)",
+        (name, email, hashed_password)
+      )
+      conn.commit()
+      
+      return redirect("/login.html")
+    
+  return render_template("register.html")
 
 @app.route("/beneficiaries", methods=["GET", "POST"])
 def beneficiaries():

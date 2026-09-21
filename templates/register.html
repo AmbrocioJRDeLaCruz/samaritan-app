@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block title %}
+  Register
+{% endblock %}
+
+{% block main %}
+<div class="card border-0 shadow-sm rounded-4 bg-white mb-4">
+  <h1>Registrarse</h1>
+
+  <div>
+    <form action="/register" method="post">
+      <div class="row g-4">
+        <div class="col-12">
+          <label for="name" class="form-label fw-semibold">Nombre Completo</label>
+          <input type="text" class="form-control" name="name" placeholder="Ej. Juan Pérez" required>
+        </div>
+
+        <div class="col-12">
+          <label for="email" class="form-label fw-semibold">Correo Electrónico</label>
+          <input type="email" class="form-control" name="email" placeholder="Ej. example@email.com">
+        </div>
+
+        <div class="col-12">
+          <label for="password" class="form-label fw-semibold">Contraseña</label>
+          <input type="password" class="form-control" name="password" placeholder="********" required>
+        </div>
+        
+        <div class="col-12">
+          <label for="confirm_password" class="form-label fw-semibold">Confirmar Contraseña</label>
+          <input type="password" class="form-control" name="confirm_password" placeholder="********" required>
+        </div>
+      </div>
+
+      <div>
+        <button type="submit" class="btn btn-primary mt-4">Registrarse</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
