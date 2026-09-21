@@ -23,14 +23,35 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarMain">
-              <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                  <li class="nav-item">
-                      <a class="nav-link" href="/"><i class="bi bi-speedometer2 me-1"></i>Panel Principal</a>
-                  </li>
-                  <li class="nav-item">
-                      <a class="nav-link" href="/beneficiaries"><i class="bi bi-people me-1"></i>Beneficiarios</a>
-                  </li>
-              </ul>
+                {% if session["user_id"] %}
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/"><i class="bi bi-speedometer2 me-1"></i>Panel Principal</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/beneficiaries"><i class="bi bi-people me-1"></i>Beneficiarios</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                        <li class="nav-item me-3 text-white-50 small">
+                            <i class="bi bi-person-circle me-1"></i>{{ session.get("user_name", "Voluntario") }}
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light btn-sm" href="/logout">
+                                <i class="bi bi-box-arrow-right me-1"></i>Cerrar Sesión
+                            </a>
+                        </li>
+                    </ul>
+                {% else %}
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i>Iniciar Sesión</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/register"><i class="bi bi-person-plus me-1"></i>Registrarse</a>
+                        </li>
+                    </ul>
+                {% endif %}
             </div>
         </div>
     </nav>
