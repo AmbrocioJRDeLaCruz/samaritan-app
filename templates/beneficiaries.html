@@ -21,41 +21,41 @@
     <div class="card-header bg-white py-3 border-bottom">
       <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-person-badge me-2"></i> Registrar Nueva Familia o persona</h5>
     </div>
-  </div>
-  <div class="card-body p-4">
-    <form action="/beneficiaries" method="post">
-      <div class="row g-3">
-        <div class="col-12 col-md-6">
-          <label for="name" class="form-label fw-semibold">Nombre completo o de Familia</label>
-          <input type="text" class="form-control" name="name" placeholder="Ej. Familia Rodriguez o Maria Lopez" >
+    <div class="card-body p-4">
+      <form action="/beneficiaries" method="post">
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label for="name" class="form-label fw-semibold">Nombre completo o de Familia</label>
+            <input type="text" class="form-control" name="name" placeholder="Ej. Familia Rodriguez o Maria Lopez" >
+          </div>
+
+          <div class="col-12 col-md-6">
+            <label for="phone" class="form-label fw-semibold">Telefono</label>
+            <input type="text" class="form-control" name="phone" placeholder="Ej. 809-556-4520" >
+          </div>
+
+          <div class="col-12 col-md-8">
+            <label for="location" class="form-label fw-semibold">Direccion o Sector</label>
+            <input type="text" class="form-control" name="location" placeholder="Ej. Vista Catalina Callse#7 Casa 551" >
+          </div>
+
+          <div class="col-12 col-md-4">
+            <label for="household_size" class="form-label fw-semibold">personas en el hogar</label>
+            <input type="number" class="form-control" name="household_size" >
+          </div>
+
+          <div class="col-12">
+            <label for="notes" class="form-label fw-semibold">Notas</label>
+            <textarea name="notes" class="form-control" placeholder="Ej. Familia con 3 niños pequeños, necesita pañales y leche"></textarea>
+          </div>
+
+          <div class="col-12 d-flex justify-content-end gap-2 mt-4">
+            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#newBeneficiaryCollapse">Cancelar</button>
+            <button type="submit" class="btn btn-primary px-4 fw-semibold">Guardar Beneficiario</button>
+          </div>
         </div>
-  
-        <div class="col-12 col-md-6">
-          <label for="phone" class="form-label fw-semibold">Telefono</label>
-          <input type="text" class="form-control" name="phone" placeholder="Ej. 809-556-4520" >
-        </div>
-  
-        <div class="col-12 col-md-8">
-          <label for="location" class="form-label fw-semibold">Direccion o Sector</label>
-          <input type="text" class="form-control" name="location" placeholder="Ej. Vista Catalina Callse#7 Casa 551" >
-        </div>
-  
-        <div class="col-12 col-md-4">
-          <label for="household_size" class="form-label fw-semibold">personas en el hogar</label>
-          <input type="number" class="form-control" name="household_size" >
-        </div class="col-12">
-  
-        <div class="col-12">
-          <label for="notes" class="form-label fw-semibold">Notas</label>
-          <textarea name="notes" class="form-control" placeholder="Ej. Familia con 3 niños pequeños, necesita pañales y leche"></textarea>
-        </div>
-  
-        <div class="col-12 d-flex justify-content-end gap-2 mt-4">
-          <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#newBeneficiaryCollapse">Cancelar</button>
-          <button type="submit" class="btn btn-primary px-4 fw-semibold">Guardar Beneficiario</button>
-        </div>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
 </div>
 

@@ -34,8 +34,8 @@ def index():
     in_progress_cases = conn.execute("SELECT COUNT(*) FROM cases WHERE status = 'in_progress';").fetchone()[0]
     completed_cases = conn.execute("SELECT COUNT(*) FROM cases WHERE status = 'complete';").fetchone()[0]
     
-    status_filter = request.args.get("status")
-    search_query = request.args.get("q")
+    status_filter = request.args.get("status", "")
+    search_query = request.args.get("q", "").strip()
 
     base_query ="""
       SELECT 
@@ -198,7 +198,7 @@ def new_case():
       
       conn.execute(
         "INSERT INTO cases (beneficiary_id, case_type, category, description, status) VALUES (?, ?, ?, ?, 'pending')",
-        (beneficiary_id, case_type, category, description if description else None)
+        (beneficiary_id, case_type, category, description)
       )
       conn.commit()
       
@@ -233,6 +233,7 @@ def case_detail(case_id):
   return render_template("case_detail.html", case=case)
 
 @app.route("/cases/<int:case_id>/claim", methods=["POST"])
+@login_required
 def claim_case(case_id):
   """
   Permite a un voluntario reclamar un caso para su atención.
@@ -256,14 +257,13 @@ def update_case_status(case_id):
     with get_db() as conn:
       conn.execute("UPDATE cases SET status = ? WHERE id = ?;", (new_status, case_id))
       flash("Estado del caso actualizado correctamente.", "success")
-      print("Se ejecuto el query")
   else:
     flash("Estado inválido.", "warning")
     
   return redirect(f"/cases/{case_id}")
 
 if __name__ == "__main__":
-  app.run(debug=True)
   with app.app_context():
     init_db()
+  app.run(debug=True)
     
